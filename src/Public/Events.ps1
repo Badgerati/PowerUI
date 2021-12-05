@@ -57,13 +57,20 @@ function Invoke-PuiEvent
         $Type
     )
 
+    $ctlType = $Control | Get-PuiControlType
+
     if (!(Test-PuiControlEventSupported -Control $Control -Type $Type)) {
-        $ctlType = $Control | Get-PuiControlType
         throw "$($ctlType) control '$($Control.Name)' does not support '$($Type)' event"
     }
 
-    $PuiContext.Window.Dispatcher.Invoke([System.Action]{
-        $ctlType = $Control | Get-PuiControlType
-        Invoke-Expression -Command "`$Control.RaiseEvent([System.Windows.RoutedEventArgs]::new([System.Windows.Controls.$($ctlType)]::$($Type)Event))"
-    })
+    $cmd = "`$Control.RaiseEvent([System.Windows.RoutedEventArgs]::new([System.Windows.Controls.$($ctlType)]::$($Type)Event))"
+
+    if ($PuiContext.Window.Dispatcher.CheckAccess()) {
+        Invoke-Expression -Command $cmd | Out-Null
+    }
+    else {
+        $PuiContext.Window.Dispatcher.Invoke([System.Action]{
+            Invoke-Expression -Command $cmd | Out-Null
+        })
+    }
 }

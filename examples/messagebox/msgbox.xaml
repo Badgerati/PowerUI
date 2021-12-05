@@ -1,0 +1,14 @@
+<Window x:Class = "WPFDialog.MainWindow"
+   xmlns = "http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+   xmlns:x = "http://schemas.microsoft.com/winfx/2006/xaml"
+   Title = "MainWindow" Height = "350" Width = "604">
+
+   <Grid>
+      <Button Height = "23" Margin = "100" Name = "ShowMessageBox" VerticalAlignment = "Top">
+            Show Message Box
+      </Button>
+
+      <TextBox Height = "23" HorizontalAlignment = "Left" Margin = "181,167,0,0"
+         Name = "TextBox1" VerticalAlignment = "Top" Width = "120" />
+   </Grid>
+</Window>

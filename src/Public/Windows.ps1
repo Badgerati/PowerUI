@@ -97,6 +97,7 @@ function Import-PuiWindow
         $xaml = Get-Content $Path -Raw
         $xaml = ((($xaml -ireplace 'mc:Ignorable="d"', '') -ireplace "x:N", 'N') -ireplace '^<Win[\w]*', '<Window')
         $xaml = ($xaml -ireplace "\{null\}", '{x:Null}')
+        $xaml = ($xaml -ireplace "x:class\s*=\s*(`"|').+?(`"|')", '')
 
         $xaml = [xml]$xaml
         $reader = [System.Xml.XmlNodeReader]::new($xaml)

@@ -12,7 +12,7 @@ function Add-PuiButton
 
         [Parameter()]
         [string]
-        $Content,
+        $Value,
 
         [Parameter()]
         [int]
@@ -33,7 +33,7 @@ function Add-PuiButton
 
     $button = [System.Windows.Controls.Button]::new()
     $button.Name = $Name
-    $button.Content = $Content
+    $button.Content = $Value
     $button.Margin = ($Margin | Protect-PuiThickness)
     $button.Padding = ($Padding | Protect-PuiThickness)
     Set-PuiDimensions -Control $button -Width $Width -Height $Height

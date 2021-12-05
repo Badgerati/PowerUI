@@ -10,6 +10,10 @@ When using XAML, nearly everything is supported. However, if you want to play wi
 * Button
 * Grid
 * Label
+* TextBlock
+* Image
+* StackPanel
+* MessageBox
 * plus any events
 
 ## Import
@@ -110,17 +114,24 @@ $window = New-PuiWindow -Title 'Run PowerShell' -Height 400 -Width 430 -Content 
     # add grid with 3 columns to 1st row
     $grid2 = ($grid1 | Add-PuiGrid -RowHeight 50 -ColumnWidth 133,133,133)
 
-    # add low/textbox to 1st/2nd columns
-    $grid2 | Add-PuiLabel -Content 'Query:' -Margin '10,15,0,0' | Set-PuiGridLocation -Column 0
+    # add low/textbox to 1st/2nd columns, and bind label to textbox
+    $label = ($grid2 | Add-PuiLabel -Value 'Query:' -Margin '10,15,0,0' | Set-PuiGridLocation -Column 0 -PassThru)
     $textbox = ($grid2 | Add-PuiTextbox -Name 'Query' -Height 23 | Set-PuiGridLocation -Column 1 -PassThru)
+    $label | Set-PuiLabelTarget -Target $textbox
 
     # add button to 3rd column
     $button = ($grid2 |
-        Add-PuiButton -Name 'Query' -Content 'Query' -Margin '12,0,12,0' -Height 23 |
+        Add-PuiButton -Name 'Query' -Value 'Query' -Margin '12,0,12,0' -Height 23 |
         Set-PuiGridLocation -Column 2 -PassThru)
 
     # register click on button to run query and output results
     $button | Register-PuiEvent -Type Click -ScriptBlock {
+        # show a messagebox
+        $result = Show-PuiMessageBox -Body 'Are you sure you want to run the query?' -Button YesNo
+        if ($result -ieq 'no') {
+            return
+        }
+
         $query = Get-PuiTextboxValue -Name 'Query'
 
         # check if query is empty, if not then run and show results
@@ -159,7 +170,10 @@ Below is a list of all the current functions available:
 
 * Add-PuiButton
 * Add-PuiGrid
+* Add-PuiImage
 * Add-PuiLabel
+* Add-PuiStackPanel
+* Add-PuiTextBlock
 * Add-PuiTextbox
 * Get-PuiButtonValue
 * Get-PuiControl
@@ -169,7 +183,10 @@ Below is a list of all the current functions available:
 * Invoke-PuiEvent
 * New-PuiWindow
 * Register-PuiEvent
+* Set-PuiControlFocus
 * Set-PuiGridLocation
+* Set-PuiLabelTarget
+* Show-PuiMessageBox
 * Show-PuiWindow
 * Update-PuiButtonValue
 * Update-PuiControlProperty
@@ -181,12 +198,10 @@ Still yet to do (pretty much all in terms of building a UI with just PowerShell)
 
 * CheckBox
 * ComboBox / ComboBoxItem
-* Image
 * ListBox / ListBoxItem
-* LisView
+* ListView
 * Panel
 * PasswordBox
-* Messagebox
 * Progressbar
 * RadioButton
 * RichTextbox

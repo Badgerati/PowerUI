@@ -15,17 +15,28 @@ function Get-PuiControlProperty
         $Property
     )
 
-    $PuiContext.Window.Dispatcher.Invoke([System.Action]{
-        if (($null -eq $Property) -or ($Property.Length -eq 0)) {
-            $script:result = $null
-        }
-        elseif ($Property.Length -eq 1) {
-            $script:result = ($PuiContext.Controls[$Type][$Name].Control | Select-Object -ExpandProperty $Property[0])
+    if (($null -eq $Property) -or ($Property.Length -eq 0)) {
+        $null
+    }
+
+    if ($PuiContext.Window.Dispatcher.CheckAccess()) {
+        if ($Property.Length -eq 1) {
+            $script:result = $PuiContext.Controls[$Type][$Name].Control | Select-Object -ExpandProperty $Property[0]
         }
         else {
-            $script:result = ($PuiContext.Controls[$Type][$Name].Control | Select-Object -Property $Property)
+            $script:result = $PuiContext.Controls[$Type][$Name].Control | Select-Object -Property $Property
         }
-    })
+    }
+    else {
+        $PuiContext.Window.Dispatcher.Invoke([System.Action]{
+            if ($Property.Length -eq 1) {
+                $script:result = $PuiContext.Controls[$Type][$Name].Control | Select-Object -ExpandProperty $Property[0]
+            }
+            else {
+                $script:result = $PuiContext.Controls[$Type][$Name].Control | Select-Object -Property $Property
+            }
+        })
+    }
 
     return $result
 }
@@ -65,6 +76,25 @@ function Get-PuiControl
     }
 }
 
+function Set-PuiControlFocus
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [System.Windows.UIElement]
+        $Control
+    )
+
+    if ($PuiContext.Window.Dispatcher.CheckAccess()) {
+        $Control.Focus()
+    }
+    else {
+        $PuiContext.Window.Dispatcher.Invoke([System.Action]{
+            $Control.Focus()
+        })
+    }
+}
+
 function Update-PuiControlProperty
 {
     [CmdletBinding()]
@@ -86,7 +116,12 @@ function Update-PuiControlProperty
         $Value
     )
 
-    $PuiContext.Window.Dispatcher.Invoke([System.Action]{
+    if ($PuiContext.Window.Dispatcher.CheckAccess()) {
         $PuiContext.Controls[$Type][$Name].Control.$Property = $Value
-    })
+    }
+    else {
+        $PuiContext.Window.Dispatcher.Invoke([System.Action]{
+            $PuiContext.Controls[$Type][$Name].Control.$Property = $Value
+        })
+    }
 }
